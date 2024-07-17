@@ -24,12 +24,42 @@ module.exports = {
     },
     getAllEmployees: async (req, res, next) => {
         try {
-            const employees = await Employee.find();
-            return res.json({
+            let {page, limit, searchText} = req.query;
+            page = +page || 1, limit = +limit || 10;
+            let query = searchText ? {
+                $or:[{
+                    name: {$regex: searchText, $options: "i"}
+                },{
+                    department: {$regex: searchText, $options: "i"}
+                },{
+                    email: {$regex: searchText, $options: "i"}
+                }
+            ]
+            } : {};
+            const employees = await Employee.find(query).sort({_id: -1}).skip((page-1) * limit).limit(limit).lean();
+            const total = await Employee.countDocuments(query);
+            return employees.length > 0 ?
+            res.json({
                 success: true, 
                 statusCode: 200,
                 message: "Employee list",
-                body: employees
+                body: {
+                    page: page,
+                    limit: limit,
+                    total: total,
+                    data: employees
+                }
+            }) : 
+             res.json({
+                success: true, 
+                statusCode: 204,
+                message: "No employees found",
+                body: {
+                    page: page,
+                    limit: limit,
+                    total: total,
+                    data: employees
+                }
             });
         } catch (err) {
             return res.json({
