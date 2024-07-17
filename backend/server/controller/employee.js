@@ -5,6 +5,7 @@ module.exports = {
         try {
             const newEmployee = new Employee(req.body);
             newEmployee.id = newEmployee._id;
+            newEmployee.createdAt = Date.now();
             await newEmployee.save();
             return res.json({
                 success: true, 
@@ -27,7 +28,7 @@ module.exports = {
             return res.json({
                 success: true, 
                 statusCode: 200,
-                message: "Employee created",
+                message: "Employee list",
                 body: employees
             });
         } catch (err) {
@@ -54,7 +55,7 @@ module.exports = {
             return res.json({
                 success: true, 
                 statusCode: 200,
-                message: "Employee created",
+                message: "Employee",
                 body: employee
             });
         } catch (err) {
@@ -70,6 +71,7 @@ module.exports = {
     updateEmployeeById: async (req, res, next) => {
         try {
             const  id = req.params.id, updateData = req.body;
+            updateData.updatedAt = Date.now();
             const employee = await Employee.findByIdAndUpdate(
                 id,
                 updateData,
@@ -86,7 +88,7 @@ module.exports = {
             return res.json({
                 success: true, 
                 statusCode: 200,
-                message: "Employee created",
+                message: "Employee updated",
                 body: employee
             });
         } catch (err) {
